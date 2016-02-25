@@ -10,7 +10,7 @@ import pymysql
 class InstagramCrawlerPipeline(object):
 
     def __init__(self):
-        self.conn = pymysql.connect(host='127.0.0.1', port=3307, user='root', passwd='root', db='influencers')
+        self.conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='', db='influencers')
         self.table = 'influencers'
         self.COLUMNS = "inf_id, is_private, posts, username, profile_picture, full_name, followers, following, avg_comments, avg_likes"
 
