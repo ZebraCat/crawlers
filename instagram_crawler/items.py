@@ -8,7 +8,6 @@
 from scrapy import Item, Field
 
 class InstagramProfileItems(Item):
-    inf_id = Field()
     is_private = Field()
     posts = Field()
     username = Field()

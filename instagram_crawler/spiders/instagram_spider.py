@@ -1,4 +1,4 @@
-import csv
+import pymysql
 import re
 import json
 import logging
@@ -29,7 +29,6 @@ class Instagram(Spider):
         item['is_private'] = data['is_private']
         media = data['media']
         item['posts'] = media['count']
-        item['inf_id'] = media['nodes'][0]['owner']['id']
         item['avg_comments'] = self.calc_average('comments', media, len(media['nodes']))
         item['avg_likes'] = self.calc_average('likes', media, len(media['nodes']))
 
@@ -40,13 +39,18 @@ class Instagram(Spider):
 
     def start_requests(self):
         try:
-            with open('instagram_crawler/data/influencers.txt', 'rb') as f:
-                reader = csv.reader(f)
-                for line in reader:
-                    for name in line:
-                        yield self.make_requests_from_url("http://www.instagram.com/" + name)
+            passwd = 'root'
+            with open('/home/ec2-user/mysqlcreds', 'r') as f:
+                passwd = f.readline().rstrip()
+            conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd=passwd, db='influencers')
+            table = 'influencers_manual'
+            curr = conn.cursor()
+            curr.execute("SELECT username FROM {}".format(table))
+            res = curr.fetchall()
+            for username in res:
+                yield self.make_requests_from_url("http://www.instagram.com/" + username[0])
         except Exception as e:
-            logger.error("Could not parse/find influencers.txt file")
+            logger.error("Could not get influencers from influencers_manual db")
             logger.exception(e)
 
 
