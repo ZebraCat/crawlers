@@ -18,3 +18,4 @@ class InstagramProfileItems(Item):
     following = Field()
     avg_comments = Field()
     avg_likes = Field()
+    user_id = Field()

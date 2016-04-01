@@ -39,7 +39,6 @@ class Instagram(Spider):
 
     def start_requests(self):
         try:
-            passwd = 'root'
             with open('/home/ec2-user/mysqlcreds', 'r') as f:
                 passwd = f.readline().rstrip()
             conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd=passwd, db='influencers')
@@ -58,4 +57,4 @@ def get_extracted(value, index):
     try:
         return value[index]
     except:
-        return ""
+        return {}
