@@ -25,7 +25,7 @@ class InstagramCrawlerPipeline(object):
        #self.redis_conn.set(item.username, self._get_followers(item.username))
         curr = self.conn.cursor()
         curr.execute("REPLACE INTO {}({}) VALUES(%(is_private)s, %(posts)s, %(username)s, %(profile_picture)s,"
-                     "%(followers)s, %(following)s, %(avg_comments)s, %(avg_likes)s, %(user_id)s"
+                     "%(followers)s, %(following)s, %(avg_comments)s, %(avg_likes)s, %(user_id)s)"
                      .format(self.table, self.COLUMNS), item.__dict__['_values'])
         self.conn.commit()
 
