@@ -21,6 +21,7 @@ class Instagram(Spider):
 
         data = get_extracted(json_data["entry_data"]["ProfilePage"], 0)['user']
         item['username'] = data['username']
+        item['user_id'] = data['id']
         item['following'] = data['follows']['count']
         item['followers'] = data['followed_by']['count']
         item['profile_picture'] = data['profile_pic_url']
