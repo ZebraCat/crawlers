@@ -18,7 +18,7 @@ class InstagramCrawlerPipeline(object):
         self.conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd=passwd, db='influencers')
         self.table = 'influencers'
         self.COLUMNS = "is_private, posts, username, profile_picture, followers, following, avg_comments, avg_likes"
-        self.redis_conn = redis.StrictRedis() #TODO set passwords, logical db and such
+        #self.redis_conn = redis.StrictRedis() #TODO set passwords, logical db and such
 
     def process_item(self, item, spider):
         #if item.followers > 6000 and self.redis_conn.get(item.username) is None:
