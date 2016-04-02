@@ -79,7 +79,9 @@ class Instagram(Spider):
             try:
                 all_following = UserCache.get_all_parsed_user_following()
                 for username in all_following:
+                    print "BEFORE PRINTING USERNAMES"
                     if username:
+                        print username
                         yield self.make_requests_from_url(self.BASE_URL + username)
             except Exception as e:
                 logger.error("Could not get influencers from redis")
