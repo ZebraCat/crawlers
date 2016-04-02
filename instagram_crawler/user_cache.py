@@ -1,5 +1,5 @@
 import redis
-
+import msgpack
 
 class UserCache(object):
 
@@ -23,11 +23,11 @@ class UserCache(object):
 
     @classmethod
     def set_following(cls, user, followers_list):
-        cls.get_instance().set(user, followers_list)
+        cls.get_instance().set(user, msgpack.packb(followers_list))
 
     @classmethod
     def get_following(cls, user):
-        return cls.get_instance().lget(user)
+        return msgpack.unpackb(cls.get_instance().get(user))
 
     @classmethod
     def remove_user(cls, user):
