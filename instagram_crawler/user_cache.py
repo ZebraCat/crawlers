@@ -27,7 +27,7 @@ class UserCache(object):
 
     @classmethod
     def get_following(cls, user):
-        return cls.get_instance().get(user)
+        return cls.get_instance().lget(user)
 
     @classmethod
     def remove_user(cls, user):
