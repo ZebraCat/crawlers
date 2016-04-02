@@ -36,6 +36,8 @@ class UserCache(object):
     @classmethod
     def get_all_parsed_user_following(cls):
         all_following = []
-        for user in cls.get_instance().keys():
-            if user != cls.SEEN_USERS_SET_KEY:
+        all_users = cls.get_instance().keys()
+        for user in all_users:
+            if user != cls.SEEN_USERS_SET_KEY and cls.get_followers(user) is not None:
                 all_following.extend(cls.get_followers(user))
+        return all_following
