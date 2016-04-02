@@ -50,9 +50,9 @@ ITEM_PIPELINES = ['instagram_crawler.pipelines.InstagramCrawlerPipeline']
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
-DOWNLOADER_MIDDLEWARES = {
-    'instagram_crawler.middlewares.force_utf_response.ForceUTF8Response': 100,
-}
+# DOWNLOADER_MIDDLEWARES = {
+#     'instagram_crawler.middlewares.force_utf_response.ForceUTF8Response': 100,
+# }
 
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html

@@ -19,3 +19,4 @@ class InstagramProfileItems(Item):
     avg_comments = Field()
     avg_likes = Field()
     user_id = Field()
+    is_from_israel = Field()
