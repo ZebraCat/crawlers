@@ -5,9 +5,7 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymysql
-import redis
-from scrapy import Request
-from instagram_crawler.spiders.instagram_spider import Instagram
+from instagram_crawler.user_cache import UserCache
 from ugly_requests import get_following
 
 class InstagramCrawlerPipeline(object):
@@ -18,20 +16,15 @@ class InstagramCrawlerPipeline(object):
         self.conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd=passwd, db='influencers')
         self.table = 'influencers'
         self.COLUMNS = "is_private, posts, username, profile_picture, followers, following, avg_comments, avg_likes, user_id"
-        self.redis_conn = redis.StrictRedis() #TODO set passwords, logical db and such
 
     def process_item(self, item, spider):
-        if item['followers'] > 6000 and self.redis_conn.get(item['username']) is None and item['is_from_israel']:
-            self.redis_conn.set(item['username'], get_following(item['username'], item['user_id']))
+        if item['followers'] > 6000 and not UserCache.user_parsed(item['username']) and item['is_from_israel']:
+
+            UserCache.set_followers(item['username'], get_following(item['username'], item['user_id']))
+            UserCache.add_to_parsed(item['username'])
+
             curr = self.conn.cursor()
             curr.execute("REPLACE INTO {}({}) VALUES(%(is_private)s, %(posts)s, %(username)s, %(profile_picture)s,"
                          "%(followers)s, %(following)s, %(avg_comments)s, %(avg_likes)s, %(user_id)s)"
                          .format(self.table, self.COLUMNS), item.__dict__['_values'])
             self.conn.commit()
-            # generate new request for each following
-            following = self.redis_conn.get(item['username'])
-            if following is not None:
-                for followee in following:
-                    yield Request(Instagram.BASE_URL + '/' + followee, callback=Instagram.parse_item)
-
-            self.redis_conn.delete(item['username'])

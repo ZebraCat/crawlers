@@ -1,18 +1,22 @@
-import pymysql
 import re
 import json
 import logging
-from scrapy import Spider
+import pymysql
+from scrapy import Spider, Request
 from instagram_crawler.items import InstagramProfileItems
+from instagram_crawler.user_cache import UserCache
 
 logger = logging.getLogger(__name__)
 
 class Instagram(Spider):
     BASE_URL = "http://www.instagram.com/"
-    name = "Instagram"
-    start_urls = []
+    start_urls=[]
+    name='Instagram'
 
-    download_delay = 0.5
+    def __init__(self, method='mysql', *a, **kw):
+        super(Instagram, self).__init__(*a, **kw)
+        self.method = method
+
 
     def parse(self, response):
         return Instagram.parse_item(response)
@@ -38,7 +42,6 @@ class Instagram(Spider):
         item['avg_comments'] = cls.calc_average('comments', media, len(media['nodes']))
         item['avg_likes'] = cls.calc_average('likes', media, len(media['nodes']))
         item['is_from_israel'] = cls.is_from_israel(media)
-
         return item
 
     @classmethod
@@ -57,19 +60,30 @@ class Instagram(Spider):
         return is_from_israel
 
     def start_requests(self):
-        try:
-            with open('/home/ec2-user/mysqlcreds', 'r') as f:
-                passwd = f.readline().rstrip()
-            conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd=passwd, db='influencers')
-            table = 'influencers_manual'
-            curr = conn.cursor()
-            curr.execute("SELECT username FROM {}".format(table))
-            res = curr.fetchall()
-            for username in res:
-                yield self.make_requests_from_url(self.BASE_URL + username[0])
-        except Exception as e:
-            logger.error("Could not get influencers from influencers_manual db")
-            logger.exception(e)
+        if self.method == 'mysql':
+            try:
+                with open('/home/ec2-user/mysqlcreds', 'r') as f:
+                    passwd = f.readline().rstrip()
+                conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd=passwd, db='influencers')
+                table = 'influencers_manual'
+                curr = conn.cursor()
+                curr.execute("SELECT username FROM {}".format(table))
+                res = curr.fetchall()
+                for username in res:
+                    yield self.make_requests_from_url(self.BASE_URL + username[0])
+            except Exception as e:
+                logger.error("Could not get influencers from influencers_manual db")
+                logger.exception(e)
+        else:
+            #generate new request for each following
+            try:
+                all_following = UserCache.get_all_parsed_user_following()
+                for username in all_following:
+                    if username:
+                        yield self.make_requests_from_url(self.BASE_URL + username)
+            except Exception as e:
+                logger.error("Could not get influencers from redis")
+                logger.exception(e)
 
 
 def get_extracted(value, index):
