@@ -27,11 +27,11 @@ class UserCache(object):
 
     @classmethod
     def get_followers(cls, user):
-        cls.get_instance().get(user)
+        return cls.get_instance().get(user)
 
     @classmethod
     def remove_user(cls, user):
-        cls.get_instance().delete(user)
+        return cls.get_instance().delete(user)
 
     @classmethod
     def get_all_parsed_user_following(cls):
