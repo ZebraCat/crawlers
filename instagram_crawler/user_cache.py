@@ -38,8 +38,9 @@ class UserCache(object):
         all_following = set()
         all_users = cls.get_instance().keys()
         for user in all_users:
-            user_following = cls.get_following(user)
-            if user != cls.SEEN_USERS_SET_KEY and user_following is not None:
-                for followee in user_following:
-                    all_following.add(followee)
+            if user != cls.SEEN_USERS_SET_KEY:
+                user_following = cls.get_following(user)
+                if user_following is not None:
+                    for followee in user_following:
+                        all_following.add(followee)
         return all_following
