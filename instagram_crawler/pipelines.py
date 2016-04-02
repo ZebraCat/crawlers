@@ -22,7 +22,7 @@ class InstagramCrawlerPipeline(object):
 
     def process_item(self, item, spider):
         if item['followers'] > 6000 and self.redis_conn.get(item['username']) is None:
-            self.redis_conn.set(item.username, get_following(item['username'], item['user_id']))
+            self.redis_conn.set(item['username'], get_following(item['username'], item['user_id']))
             curr = self.conn.cursor()
             curr.execute("REPLACE INTO {}({}) VALUES(%(is_private)s, %(posts)s, %(username)s, %(profile_picture)s,"
                          "%(followers)s, %(following)s, %(avg_comments)s, %(avg_likes)s, %(user_id)s)"
