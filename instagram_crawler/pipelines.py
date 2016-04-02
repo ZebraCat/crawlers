@@ -5,6 +5,7 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymysql
+from scrapy.exceptions import DropItem
 from instagram_crawler.user_cache import UserCache
 from ugly_requests import get_following
 
@@ -28,3 +29,5 @@ class InstagramCrawlerPipeline(object):
                          "%(followers)s, %(following)s, %(avg_comments)s, %(avg_likes)s, %(user_id)s)"
                          .format(self.table, self.COLUMNS), item.__dict__['_values'])
             self.conn.commit()
+        else:
+            raise DropItem
