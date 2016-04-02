@@ -21,7 +21,7 @@ class InstagramCrawlerPipeline(object):
     def process_item(self, item, spider):
         if item['followers'] > 6000 and not UserCache.user_parsed(item['username']) and item['is_from_israel']:
 
-            UserCache.set_followers(item['username'], get_following(item['username'], item['user_id']))
+            UserCache.set_following(item['username'], get_following(item['username'], item['user_id']))
             UserCache.add_to_parsed(item['username'])
 
             curr = self.conn.cursor()

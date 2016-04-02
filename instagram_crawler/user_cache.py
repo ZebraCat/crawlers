@@ -22,11 +22,11 @@ class UserCache(object):
         cls.get_instance().sadd(cls.SEEN_USERS_SET_KEY, username)
 
     @classmethod
-    def set_followers(cls, user, followers_list):
+    def set_following(cls, user, followers_list):
         cls.get_instance().set(user, followers_list)
 
     @classmethod
-    def get_followers(cls, user):
+    def get_following(cls, user):
         return cls.get_instance().get(user)
 
     @classmethod
@@ -35,9 +35,11 @@ class UserCache(object):
 
     @classmethod
     def get_all_parsed_user_following(cls):
-        all_following = []
+        all_following = set()
         all_users = cls.get_instance().keys()
         for user in all_users:
-            if user != cls.SEEN_USERS_SET_KEY and cls.get_followers(user) is not None:
-                all_following.extend(cls.get_followers(user))
+            user_following = cls.get_following(user)
+            if user != cls.SEEN_USERS_SET_KEY and user_following is not None:
+                for followee in user_following:
+                    all_following.add(followee)
         return all_following
