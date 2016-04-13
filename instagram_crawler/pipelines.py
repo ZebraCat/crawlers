@@ -19,7 +19,7 @@ class InstagramCrawlerPipeline(object):
         self.COLUMNS = "is_private, posts, username, profile_picture, followers, following, avg_comments, avg_likes, user_id"
 
     def process_item(self, item, spider):
-        if spider.mode == 'mysql':
+        if spider.method == 'mysql':
             self._process_item_update_mode(item)
         else:
             self._process_item_scrape_mode(item)
