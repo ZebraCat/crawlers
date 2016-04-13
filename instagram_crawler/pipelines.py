@@ -19,15 +19,28 @@ class InstagramCrawlerPipeline(object):
         self.COLUMNS = "is_private, posts, username, profile_picture, followers, following, avg_comments, avg_likes, user_id"
 
     def process_item(self, item, spider):
+        if spider.mode == 'mysql':
+            self._process_item_update_mode(item)
+        else:
+            self._process_item_scrape_mode(item)
+
+
+    def _process_item_scrape_mode(self, item):
         if item['followers'] > 6000 and not UserCache.user_parsed(item['username']) and item['is_from_israel']:
 
             UserCache.set_following(item['username'], get_following(item['username'], item['user_id']))
             UserCache.add_to_parsed(item['username'])
 
-            curr = self.conn.cursor()
-            curr.execute("REPLACE INTO {}({}) VALUES(%(is_private)s, %(posts)s, %(username)s, %(profile_picture)s,"
-                         "%(followers)s, %(following)s, %(avg_comments)s, %(avg_likes)s, %(user_id)s)"
-                         .format(self.table, self.COLUMNS), item.__dict__['_values'])
-            self.conn.commit()
+            self._replace_into_mysql(item)
         else:
             raise DropItem
+
+    def _process_item_update_mode(self, item):
+        self._replace_into_mysql(item)
+
+    def _replace_into_mysql(self, item):
+        curr = self.conn.cursor()
+        curr.execute("REPLACE INTO {}({}) VALUES(%(is_private)s, %(posts)s, %(username)s, %(profile_picture)s,"
+                     "%(followers)s, %(following)s, %(avg_comments)s, %(avg_likes)s, %(user_id)s)"
+                     .format(self.table, self.COLUMNS), item.__dict__['_values'])
+        self.conn.commit()

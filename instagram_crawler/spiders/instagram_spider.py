@@ -3,6 +3,7 @@ import json
 import logging
 import pymysql
 from scrapy import Spider, Request
+from instagram_crawler.custom_settings import CustomSettings
 from instagram_crawler.items import InstagramProfileItems
 from instagram_crawler.user_cache import UserCache
 
