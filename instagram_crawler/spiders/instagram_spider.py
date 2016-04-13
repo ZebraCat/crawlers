@@ -65,7 +65,7 @@ class Instagram(Spider):
                 with open('/home/ec2-user/mysqlcreds', 'r') as f:
                     passwd = f.readline().rstrip()
                 conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd=passwd, db='influencers')
-                table = 'influencers_manual'
+                table = 'influencers'
                 curr = conn.cursor()
                 curr.execute("SELECT username FROM {}".format(table))
                 res = curr.fetchall()
