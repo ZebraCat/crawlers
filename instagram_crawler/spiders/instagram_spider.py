@@ -34,7 +34,8 @@ class Instagram(Spider):
         item['user_id'] = int(data['id'])
         item['following'] = data['follows']['count']
         item['followers'] = data['followed_by']['count']
-        item['profile_picture'] = data['profile_pic_url']
+        # change resolution url to 200x200
+        item['profile_picture'] = data['profile_pic_url'].replace('150x150', '200x200')
         # TODO - resolve unicode problem (hebrew)
         #item['full_name'] = data['full_name']
         item['is_private'] = data['is_private']
