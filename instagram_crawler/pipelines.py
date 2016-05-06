@@ -12,7 +12,7 @@ from ugly_requests import get_following
 class InstagramCrawlerPipeline(object):
 
     def __init__(self):
-        with open('/home/ec2-user/mysqlcreds', 'r') as f:
+        with open('/home/omri/mysqlcreds', 'r') as f:
             passwd = f.readline().rstrip()
         self.conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd=passwd, db='influencers')
         self.table = 'influencers'
