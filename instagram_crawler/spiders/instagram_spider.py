@@ -64,7 +64,7 @@ class Instagram(Spider):
     def start_requests(self):
         if self.method == 'mysql':
             try:
-                with open('/home/ec2-user/mysqlcreds', 'r') as f:
+                with open('/home/omri/mysqlcreds', 'r') as f:
                     passwd = f.readline().rstrip()
                 conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd=passwd, db='influencers')
                 table = 'influencers'
