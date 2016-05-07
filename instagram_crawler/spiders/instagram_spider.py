@@ -1,10 +1,12 @@
 import re
 import json
 import logging
+import msgpack
 import pymysql
 from scrapy import Spider, Request
 from instagram_crawler.custom_settings import CustomSettings
 from instagram_crawler.items import InstagramProfileItems
+from instagram_crawler.ugly_requests import get_following
 from instagram_crawler.user_cache import UserCache
 
 logger = logging.getLogger(__name__)
@@ -76,16 +78,23 @@ class Instagram(Spider):
             except Exception as e:
                 logger.error("Could not get influencers from influencers_manual db")
                 logger.exception(e)
+        elif self.method == 'initial':
+            UserCache.set_following('neta_alchimister', get_following('neta_alchimister', '29605612'))
+            UserCache.add_to_parsed('neta_alchimister')
+            self._make_cached_requests()
         else:
-            #generate new request for each following
-            try:
-                all_following = UserCache.get_all_parsed_user_following()
-                for username in all_following:
-                    if username:
-                        yield self.make_requests_from_url(self.BASE_URL + username)
-            except Exception as e:
-                logger.error("Could not get influencers from redis")
-                logger.exception(e)
+            self._make_cached_requests()
+
+    def _make_cached_requests(self):
+        #generate new request for each following
+        try:
+            all_following = UserCache.get_all_parsed_user_following()
+            for username in all_following:
+                if username:
+                    yield self.make_requests_from_url(self.BASE_URL + username)
+        except Exception as e:
+            logger.error("Could not get influencers from redis")
+            logger.exception(e)
 
 
 def get_extracted(value, index):
