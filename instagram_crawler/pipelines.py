@@ -20,7 +20,7 @@ class InstagramCrawlerPipeline(object):
 
     def process_item(self, item, spider):
         if spider.method == 'mysql':
-            self._process_item_update_mode(itemZ)
+            self._process_item_update_mode(item)
         else:
             self._process_item_scrape_mode(item, spider.country)
 
