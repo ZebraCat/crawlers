@@ -20,7 +20,7 @@ class InstagramCrawlerPipeline(object):
 
     def process_item(self, item, spider):
         if spider.method == 'mysql':
-            self._process_item_update_mode(item)
+            self._process_item_update_mode(itemZ)
         else:
             self._process_item_scrape_mode(item, spider.country)
 
@@ -41,6 +41,6 @@ class InstagramCrawlerPipeline(object):
     def _replace_into_mysql(self, item):
         curr = self.conn.cursor()
         curr.execute("REPLACE INTO {}({}) VALUES(%(is_private)s, %(posts)s, %(username)s, %(profile_picture)s,"
-                     "%(followers)s, %(following)s, %(avg_comments)s, %(avg_likes)s, %(user_id)s, %(country)s"
+                     "%(followers)s, %(following)s, %(avg_comments)s, %(avg_likes)s, %(user_id)s, %(country)s)"
                      .format(self.table, self.COLUMNS), item.__dict__['_values'])
         self.conn.commit()
