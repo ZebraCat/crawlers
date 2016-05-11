@@ -16,9 +16,10 @@ class Instagram(Spider):
     start_urls=[]
     name='Instagram'
 
-    def __init__(self, method='mysql', *a, **kw):
+    def __init__(self, method='mysql', country='Israel', *a, **kw):
         super(Instagram, self).__init__(*a, **kw)
         self.method = method
+        self.country = country
 
 
     def parse(self, response):
@@ -45,7 +46,7 @@ class Instagram(Spider):
         item['posts'] = media['count']
         item['avg_comments'] = cls.calc_average('comments', media, len(media['nodes']))
         item['avg_likes'] = cls.calc_average('likes', media, len(media['nodes']))
-        item['is_from_israel'] = cls.is_from_israel(media)
+        item['country'] = cls.get_country(media)
         return item
 
     @classmethod
@@ -53,15 +54,15 @@ class Instagram(Spider):
         return reduce(lambda x,y: x + y, map(lambda post: post[action]['count'], media['nodes'])) / count
 
     @classmethod
-    def is_from_israel(cls, media):
-        is_from_israel = False
+    def get_country(cls, media):
+        country = 'USA'
         for node in media['nodes']:
             if 'caption' in node:
-                is_from_israel = any(u"\u0590" <= c <= u"\u05EA" for c in node['caption'])
-            if is_from_israel:
-                break
+                if any(u"\u0590" <= c <= u"\u05EA" for c in node['caption']):
+                    country = 'Israel'
+                    break
 
-        return is_from_israel
+        return country
 
     def start_requests(self):
         if self.method == 'mysql':
