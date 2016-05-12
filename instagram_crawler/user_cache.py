@@ -5,6 +5,7 @@ class UserCache(object):
 
     _instance = None
     SEEN_USERS_SET_KEY = 'seen_users'
+    BLACK_LIST_KEY = 'black_list'
 
     @classmethod
     def get_instance(cls):
@@ -20,6 +21,16 @@ class UserCache(object):
     @classmethod
     def add_to_parsed(cls, username):
         cls.get_instance().sadd(cls.SEEN_USERS_SET_KEY, username)
+
+    @classmethod
+    def get_black_list(cls):
+        blacklist = set()
+        try:
+            blacklist = cls.get_instance().smembers(cls.BLACK_LIST_KEY)
+        except:
+            print 'Error retrieving black list from redis!'
+
+        return blacklist
 
     @classmethod
     def set_following(cls, user, followers_list):

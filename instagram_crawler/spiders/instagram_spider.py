@@ -74,26 +74,20 @@ class Instagram(Spider):
                 curr = conn.cursor()
                 curr.execute("SELECT username FROM {}".format(table))
                 res = curr.fetchall()
+                blacklist = UserCache.get_black_list()
                 for username in res:
-                    yield self.make_requests_from_url(self.BASE_URL + username[0])
+                    if username not in blacklist:
+                        yield self.make_requests_from_url(self.BASE_URL + username[0])
             except Exception as e:
                 logger.error("Could not get influencers from influencers_manual db")
                 logger.exception(e)
-        elif self.method == 'initial':
-            UserCache.set_following('chiaraferragni', get_following('chiaraferragni', '19769622'))
-            UserCache.add_to_parsed('chiaraferragni')
-            UserCache.set_following('songofstyle', get_following('songofstyle', '10051934'))
-            UserCache.add_to_parsed('songofstyle')
-            UserCache.set_following('garypeppergirl', get_following('garypeppergirl', '6913295'))
-            UserCache.add_to_parsed('garypeppergirl')
-            UserCache.set_following('weworewhat', get_following('weworewhat', '4500355'))
-            UserCache.add_to_parsed('weworewhat')
         else:
             #generate new request for each following
             try:
                 all_following = UserCache.get_all_parsed_user_following()
+                blacklist = UserCache.get_black_list()
                 for username in all_following:
-                    if username:
+                    if username and username not in blacklist:
                         yield self.make_requests_from_url(self.BASE_URL + username)
             except Exception as e:
                 logger.error("Could not get influencers from redis")
