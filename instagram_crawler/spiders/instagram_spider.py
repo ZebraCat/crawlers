@@ -80,13 +80,13 @@ class Instagram(Spider):
                 logger.error("Could not get influencers from influencers_manual db")
                 logger.exception(e)
         elif self.method == 'initial':
-            UserCache.set_following('chiaraferragni', get_following('neta_alchimister', '29605612'))
+            UserCache.set_following('chiaraferragni', get_following('chiaraferragni', '19769622'))
             UserCache.add_to_parsed('chiaraferragni')
-            UserCache.set_following('songofstyle', get_following('neta_alchimister', '29605612'))
+            UserCache.set_following('songofstyle', get_following('songofstyle', '10051934'))
             UserCache.add_to_parsed('songofstyle')
-            UserCache.set_following('garypeppergirl', get_following('neta_alchimister', '29605612'))
+            UserCache.set_following('garypeppergirl', get_following('garypeppergirl', '6913295'))
             UserCache.add_to_parsed('garypeppergirl')
-            UserCache.set_following('weworewhat', get_following('neta_alchimister', '29605612'))
+            UserCache.set_following('weworewhat', get_following('weworewhat', '4500355'))
             UserCache.add_to_parsed('weworewhat')
         else:
             #generate new request for each following
