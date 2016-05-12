@@ -29,7 +29,7 @@ class UserCache(object):
     def get_following(cls, user):
         following = None
         try:
-            following = msgpack.unpackb(cls.get_instance().get(user)
+            following = msgpack.unpackb(cls.get_instance().get(user))
         except:
             print "could not unpack! user:{}".format(user)
         return following
