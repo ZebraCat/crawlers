@@ -3,6 +3,7 @@ import json
 import logging
 import pymysql
 from scrapy import Spider, Request
+from scrapy.exceptions import DropItem
 from instagram_crawler.items import InstagramProfileItems
 from instagram_crawler.user_cache import UserCache
 
@@ -60,7 +61,10 @@ class Instagram(Spider):
                     curr['src'] = re.sub(r"([0-9]{3}x[0-9]{3})", '200x200', post['display_src'])
                 else:
                     split_url = post['display_src'].split('t51.2885-15')
-                    curr['src'] = split_url[0] + 't51.2885-15/s200x200' + split_url[1] if len(split_url) == 2 else post['display_src']
+                    if (len(split_url) == 2):
+                        curr['src'] = split_url[0] + 't51.2885-15/s200x200' + split_url[1]
+                    else:
+                         continue
                 curr['likes'] = post['likes']['count']
                 curr['comments'] = post['comments']['count']
                 user_media.append(curr)
