@@ -53,16 +53,16 @@ class Instagram(Spider):
     @classmethod
     def get_media(cls, media):
         user_media = []
-        for i in range(len(media['nodes'])):
-            post = media['nodes'][i]
+        for post in media['nodes']:
             if not post['is_video']:
-                user_media.append({})
-                user_media[i]['media_id'] = post['id']
-                user_media[i]['user_id'] = post['owner']['id']
-                user_media[i]['src'] = post['display_src']
-                user_media[i]['likes'] = post['likes']['count']
-                user_media[i]['comments'] = post['comments']['count']
-                user_media[i]['caption'] = post['caption']
+                curr = {}
+                curr['media_id'] = post['id']
+                curr['user_id'] = post['owner']['id']
+                curr['src'] = post['display_src']
+                curr['likes'] = post['likes']['count']
+                curr['comments'] = post['comments']['count']
+                curr['caption'] = post['caption']
+                user_media.append(curr)
         return user_media
 
     @classmethod
