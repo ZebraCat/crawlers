@@ -56,7 +56,11 @@ class Instagram(Spider):
                 curr = {}
                 curr['media_id'] = post['id']
                 curr['user_id'] = post['owner']['id']
-                curr['src'] = re.sub(r"[0-9]{3}x[0-9]{3}", '200x200', post['display_src'])
+                if re.search(r"([0-9]{3}x[0-9]{3})", post['display_src']):
+                    curr['src'] = re.sub(r"([0-9]{3}x[0-9]{3})", '200x200', post['display_src'])
+                else:
+                    split_url = post['display_src'].split('t51.2885-15')
+                    curr['src'] = split_url[0] + 't51.2885-15/s200x200' + split_url[1] if len(split_url) == 2 else post['display_src']
                 curr['likes'] = post['likes']['count']
                 curr['comments'] = post['comments']['count']
                 user_media.append(curr)
