@@ -1,13 +1,11 @@
 import re
 import json
 import logging
-import msgpack
 import pymysql
 from scrapy import Spider, Request
-from instagram_crawler.custom_settings import CustomSettings
 from instagram_crawler.items import InstagramProfileItems
-from instagram_crawler.ugly_requests import get_following
 from instagram_crawler.user_cache import UserCache
+
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +56,7 @@ class Instagram(Spider):
                 curr = {}
                 curr['media_id'] = post['id']
                 curr['user_id'] = post['owner']['id']
-                curr['src'] = post['display_src']
+                curr['src'] = re.sub(r"[0-9]{3}x[0-9]{3}", '200x200', post['display_src'])
                 curr['likes'] = post['likes']['count']
                 curr['comments'] = post['comments']['count']
                 user_media.append(curr)
