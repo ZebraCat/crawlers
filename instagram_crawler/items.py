@@ -20,3 +20,4 @@ class InstagramProfileItems(Item):
     avg_likes = Field()
     user_id = Field()
     country = Field()
+    media = Field()

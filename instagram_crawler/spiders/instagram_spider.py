@@ -46,8 +46,24 @@ class Instagram(Spider):
         item['posts'] = media['count']
         item['avg_comments'] = cls.calc_average('comments', media, len(media['nodes']))
         item['avg_likes'] = cls.calc_average('likes', media, len(media['nodes']))
+        item['media'] = cls.get_media(media)
         item['country'] = cls.get_country(media)
         return item
+
+    @classmethod
+    def get_media(cls, media):
+        user_media = []
+        for i in range(len(media['nodes'])):
+            post = media['nodes'][i]
+            if not post['is_video']:
+                user_media.append({})
+                user_media[i]['media_id'] = post['id']
+                user_media[i]['user_id'] = post['owner']['id']
+                user_media[i]['src'] = post['display_src']
+                user_media[i]['likes'] = post['likes']['count']
+                user_media[i]['comments'] = post['comments']['count']
+                user_media[i]['caption'] = post['caption']
+        return user_media
 
     @classmethod
     def calc_average(cls, action, media, count):
