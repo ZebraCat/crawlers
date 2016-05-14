@@ -13,7 +13,7 @@ class InstagramCrawlerPipeline(object):
         self.influencer_table = 'influencers'
         self.INFLUENCER_COLUMNS = "is_private, posts, username, profile_picture, followers, following, avg_comments, avg_likes, user_id, country"
         self.media_table = 'media'
-        self.MEDIA_COLUMNS = "media_id, user_id, src, likes, comments, caption"
+        self.MEDIA_COLUMNS = "media_id, user_id, src, likes, comments"
 
     def process_item(self, item, spider):
         if spider.method == 'mysql':
@@ -37,11 +37,13 @@ class InstagramCrawlerPipeline(object):
 
     def _replace_into_mysql(self, item):
         curr = self.conn.cursor()
+        media = item['media']
+        del item['media']
         curr.execute("REPLACE INTO {}({}) VALUES(%(is_private)s, %(posts)s, %(username)s, %(profile_picture)s,"
                      "%(followers)s, %(following)s, %(avg_comments)s, %(avg_likes)s, %(user_id)s, %(country)s)"
                      .format(self.influencer_table, self.INFLUENCER_COLUMNS), item.__dict__['_values'])
         # insert media into media table
-        for post in item['media']:
-            curr.execute("REPLACE INTO {}({}) VALUES(%(media_id)s, %(user_id)s, %(src)s, %(likes)s, %(comments)s, %(caption)s)"
-                         .format(self.media_table, self.MEDIA_COLUMNS), post.__dict__['_values'])
+        for post in media:
+            curr.execute("REPLACE INTO {}({}) VALUES(%(media_id)s, %(user_id)s, %(src)s, %(likes)s, %(comments)s)"
+                         .format(self.media_table, self.MEDIA_COLUMNS), post)
         self.conn.commit()

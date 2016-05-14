@@ -61,7 +61,6 @@ class Instagram(Spider):
                 curr['src'] = post['display_src']
                 curr['likes'] = post['likes']['count']
                 curr['comments'] = post['comments']['count']
-                curr['caption'] = post['caption']
                 user_media.append(curr)
         return user_media
 
@@ -74,11 +73,15 @@ class Instagram(Spider):
         country = 'USA'
         for node in media['nodes']:
             if 'caption' in node:
-                if any(u"\u0590" <= c <= u"\u05EA" for c in node['caption']):
+                if cls.is_hebrew_string(node['caption']):
                     country = 'Israel'
                     break
 
         return country
+
+    @classmethod
+    def is_hebrew_string(cls, string):
+        return any(u"\u0590" <= c <= u"\u05EA" for c in string)
 
     def start_requests(self):
         if self.method == 'mysql':
