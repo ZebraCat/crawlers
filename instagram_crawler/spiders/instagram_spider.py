@@ -2,8 +2,7 @@ import re
 import json
 import logging
 import pymysql
-from scrapy import Spider, Request
-from scrapy.exceptions import DropItem
+from scrapy import Spider
 from instagram_crawler.items import InstagramProfileItems
 from instagram_crawler.user_cache import UserCache
 
@@ -92,9 +91,15 @@ class Instagram(Spider):
     def start_requests(self):
         if self.method == 'mysql':
             try:
-                with open('/home/omri/mysqlcreds', 'r') as f:
-                    passwd = f.readline().rstrip()
-                conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd=passwd, db='influencers')
+                try:
+                    with open('/home/omri/mysqlcreds', 'r') as f:
+                        passwd = f.readline().rstrip()
+                    port = 3306
+                except:
+                    print 'running in local mode'
+                    passwd = 'root'
+                    port = 3307
+                conn = pymysql.connect(host='127.0.0.1', port=port, user='root', passwd=passwd, db='influencers')
                 table = 'influencers'
                 curr = conn.cursor()
                 curr.execute("SELECT username FROM {}".format(table))

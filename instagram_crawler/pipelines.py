@@ -1,14 +1,27 @@
+from datetime import datetime
 import pymysql
+from pymongo import MongoClient
 from scrapy.exceptions import DropItem
 from instagram_crawler.user_cache import UserCache
 from ugly_requests import get_following
 
 class InstagramCrawlerPipeline(object):
 
+    DAYS = 7
+
     def __init__(self):
-        with open('/home/omri/mysqlcreds', 'r') as f:
-            passwd = f.readline().rstrip()
-        self.conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd=passwd, db='influencers')
+        try:
+            with open('/home/omri/mysqlcreds', 'r') as f:
+                passwd = f.readline().rstrip()
+            port = 3306
+        except:
+            print 'running in local mode'
+            passwd = 'root'
+            port = 3307
+        self.conn = pymysql.connect(host='127.0.0.1', port=port, user='root', passwd=passwd, db='influencers')
+        mongo_cli = MongoClient()
+        db = mongo_cli.influencers
+        self.analytics_collection = db.influencer_analytics
         self.followers_by_country = {'Israel': 6000, 'USA': 100000}
         self.influencer_table = 'influencers'
         self.INFLUENCER_COLUMNS = "is_private, posts, username, profile_picture, followers, following, avg_comments, avg_likes, user_id, country"
@@ -34,6 +47,7 @@ class InstagramCrawlerPipeline(object):
 
     def _process_item_update_mode(self, item):
         self._replace_into_mysql(item)
+        self._update_collection(item)
 
     def _replace_into_mysql(self, item):
         curr = self.conn.cursor()
@@ -47,3 +61,30 @@ class InstagramCrawlerPipeline(object):
             curr.execute("REPLACE INTO {}({}) VALUES(%(media_id)s, %(user_id)s, %(src)s, %(likes)s, %(comments)s)"
                          .format(self.media_table, self.MEDIA_COLUMNS), post)
         self.conn.commit()
+
+    def _update_collection(self, item):
+
+        def prepare_analytics(item):
+            influencer = self.analytics_collection.find_one({'_id': item['user_id']})
+            if influencer is not None:
+                dates_to_analytics = influencer['analytics']
+                if len(dates_to_analytics) == self.DAYS:
+                    time_dict = dict(map(lambda (time, analytics): (datetime.strptime(time, "%Y-%m-%d").date(), analytics), dates_to_analytics.iteritems()))
+                    oldest = min(time_dict, key=dates_to_analytics.get)
+                    del dates_to_analytics[str(oldest)]
+            else:
+                dates_to_analytics = {}
+
+            dates_to_analytics[str(datetime.now().date())] = {
+                "avg_comments": item['avg_comments'],
+                "avg_likes": item['avg_likes'],
+                "followers": item['followers'],
+                "following": item['following'],
+                "posts": item['posts']
+            }
+            return dates_to_analytics
+
+        key = {"_id": item['user_id']}
+        value = {"analytics": prepare_analytics(item)}
+
+        self.analytics_collection.update(key, value, upsert=True)
