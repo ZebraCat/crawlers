@@ -67,22 +67,21 @@ class InstagramCrawlerPipeline(object):
         def prepare_analytics(item):
             influencer = self.analytics_collection.find_one({'user_id': item['user_id']})
             if influencer is not None:
-                dates_to_analytics = influencer['analytics']
-                if len(dates_to_analytics) == self.DAYS:
-                    time_dict = dict(map(lambda (time, analytics): (datetime.strptime(time, "%Y-%m-%d").date(), analytics), dates_to_analytics.iteritems()))
-                    oldest = min(time_dict, key=dates_to_analytics.get)
-                    del dates_to_analytics[str(oldest)]
+                date_analytics = influencer['analytics']
+                if len(date_analytics) == self.DAYS:
+                    date_analytics.pop(0)
             else:
-                dates_to_analytics = {}
+                date_analytics = []
 
-            dates_to_analytics[str(datetime.now().date())] = {
+            date_analytics.append({
+                "date": str(datetime.now().date()),
                 "avg_comments": item['avg_comments'],
                 "avg_likes": item['avg_likes'],
                 "followers": item['followers'],
                 "following": item['following'],
                 "posts": item['posts']
-            }
-            return dates_to_analytics
+            })
+            return date_analytics
 
         key = {"user_id": item['user_id']}
         value = {"analytics": prepare_analytics(item), "user_id": item['user_id']}
