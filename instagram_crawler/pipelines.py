@@ -7,7 +7,7 @@ from ugly_requests import get_following
 
 class InstagramCrawlerPipeline(object):
 
-    DAYS = 7
+    DAYS = 30
 
     def __init__(self):
         try:
