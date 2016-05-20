@@ -65,7 +65,7 @@ class InstagramCrawlerPipeline(object):
     def _update_collection(self, item):
 
         def prepare_analytics(item):
-            influencer = self.analytics_collection.find_one({'_id': item['user_id']})
+            influencer = self.analytics_collection.find_one({'user_id': item['user_id']})
             if influencer is not None:
                 dates_to_analytics = influencer['analytics']
                 if len(dates_to_analytics) == self.DAYS:
@@ -84,7 +84,7 @@ class InstagramCrawlerPipeline(object):
             }
             return dates_to_analytics
 
-        key = {"_id": item['user_id']}
-        value = {"analytics": prepare_analytics(item)}
+        key = {"user_id": item['user_id']}
+        value = {"analytics": prepare_analytics(item), "user_id": item['user_id']}
 
         self.analytics_collection.update(key, value, upsert=True)
