@@ -54,7 +54,7 @@ class Instagram(Spider):
         user_media = []
         for post in media['nodes']:
             if not post['is_video']:
-                curr = dict
+                curr = {}
                 curr['media_id'] = post['id']
                 curr['user_id'] = post['owner']['id']
                 if re.search(r"([0-9]{3}x[0-9]{3})", post['display_src']):
