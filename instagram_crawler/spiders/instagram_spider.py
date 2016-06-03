@@ -20,7 +20,7 @@ class Instagram(Spider):
         super(Instagram, self).__init__(*a, **kw)
         self.method = method
         self.country = country
-        self.manual_run_names = ['bettyautier', 'natachabirds', 'eppcoline', 'makemylemonade', 'hellovalentine']
+        self.manual_run_names = ['marianodivaio', 'chiaraferragni', 'melissasatta', 'chiarabiasi', 'paolamod_lc']
 
 
     def parse(self, response):
