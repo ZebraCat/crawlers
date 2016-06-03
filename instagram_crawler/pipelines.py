@@ -22,7 +22,7 @@ class InstagramCrawlerPipeline(object):
         mongo_cli = MongoClient()
         db = mongo_cli.influencers
         self.analytics_collection = db.influencer_analytics
-        self.followers_by_country = {'Israel': 6000, 'USA': 100000}
+        self.followers_by_country = {'Israel': 6000, 'USA': 100000, 'France': 20000, 'Italy': 20000}
         self.influencer_table = 'influencers'
         self.INFLUENCER_COLUMNS = "is_private, posts, username, profile_picture, followers, following, avg_comments, avg_likes, user_id, country"
         self.media_table = 'media'
@@ -36,10 +36,10 @@ class InstagramCrawlerPipeline(object):
 
 
     def _process_item_scrape_mode(self, item, country):
-        if item['followers'] > self.followers_by_country[country] and not UserCache.user_parsed(item['username']) and item['country'] == country:
+        if item['followers'] > self.followers_by_country[country] and not UserCache.user_parsed(item['username'], country) and item['country'] == country:
 
-            UserCache.set_following(item['username'], get_following(item['username'], item['user_id']))
-            UserCache.add_to_parsed(item['username'])
+            UserCache.set_following(item['username'], get_following(item['username'], item['user_id']), country)
+            UserCache.add_to_parsed(item['username'], country)
 
             self._replace_into_mysql(item)
         else:

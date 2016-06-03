@@ -125,7 +125,7 @@ class Instagram(Spider):
         else:
             #generate new request for each following
             try:
-                all_following = UserCache.get_all_parsed_user_following()
+                all_following = UserCache.get_all_parsed_user_following(self.country)
                 blacklist = UserCache.get_black_list()
                 for username in all_following:
                     if username and username not in blacklist:
