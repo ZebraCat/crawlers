@@ -2,6 +2,7 @@ import re
 import json
 import logging
 import pymysql
+from langid import langid
 from scrapy import Spider
 from instagram_crawler.items import InstagramProfileItems
 from instagram_crawler.user_cache import UserCache
@@ -53,14 +54,14 @@ class Instagram(Spider):
         user_media = []
         for post in media['nodes']:
             if not post['is_video']:
-                curr = {}
+                curr = dict
                 curr['media_id'] = post['id']
                 curr['user_id'] = post['owner']['id']
                 if re.search(r"([0-9]{3}x[0-9]{3})", post['display_src']):
                     curr['src'] = re.sub(r"([0-9]{3}x[0-9]{3})", '200x200', post['display_src'])
                 else:
                     split_url = post['display_src'].split('t51.2885-15')
-                    if (len(split_url) == 2):
+                    if len(split_url) == 2:
                         curr['src'] = split_url[0] + 't51.2885-15/s200x200' + split_url[1]
                     else:
                          continue
@@ -80,6 +81,16 @@ class Instagram(Spider):
             if 'caption' in node:
                 if cls.is_hebrew_string(node['caption']):
                     country = 'Israel'
+                    break
+
+                res = langid.classify(node['caption'])
+                proba = res[1]
+                lang = res[0]
+                if lang == 'fr' and proba > 0.8:
+                    country = 'France'
+                    break
+                elif lang == 'it' and proba > 0.8:
+                    country = 'Italy'
                     break
 
         return country
