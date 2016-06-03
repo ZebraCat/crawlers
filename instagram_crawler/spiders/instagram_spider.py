@@ -2,7 +2,7 @@ import re
 import json
 import logging
 import pymysql
-from langid import langid
+from langid.langid import LanguageIdentifier, model
 from scrapy import Spider
 from instagram_crawler.items import InstagramProfileItems
 from instagram_crawler.user_cache import UserCache
@@ -14,6 +14,7 @@ class Instagram(Spider):
     BASE_URL = "http://www.instagram.com/"
     start_urls=[]
     name='Instagram'
+    _identifier = None
 
     def __init__(self, method='mysql', country='Israel', *a, **kw):
         super(Instagram, self).__init__(*a, **kw)
@@ -84,7 +85,7 @@ class Instagram(Spider):
                     country = 'Israel'
                     break
 
-                res = langid.classify(node['caption'])
+                res = cls.get_identifier().classify(node['caption'])
                 proba = res[1]
                 lang = res[0]
                 if lang == 'fr' and proba > 0.8:
@@ -95,6 +96,12 @@ class Instagram(Spider):
                     break
 
         return country
+
+    @classmethod
+    def get_identifier(cls):
+        if cls._identifier is None:
+            cls._identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
+        return cls._identifier
 
     @classmethod
     def is_hebrew_string(cls, string):
