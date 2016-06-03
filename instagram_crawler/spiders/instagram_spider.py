@@ -19,6 +19,7 @@ class Instagram(Spider):
         super(Instagram, self).__init__(*a, **kw)
         self.method = method
         self.country = country
+        self.manual_run_names = ['bettyautier', 'natachabirds', 'eppcoline', 'makemylemonade', 'hellovalentine']
 
 
     def parse(self, response):
@@ -122,6 +123,10 @@ class Instagram(Spider):
             except Exception as e:
                 logger.error("Could not get influencers from influencers_manual db")
                 logger.exception(e)
+
+        elif self.method == 'manual':
+            for username in self.manual_run_names:
+                yield self.make_requests_from_url(self.BASE_URL + username)
         else:
             #generate new request for each following
             try:
