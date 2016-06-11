@@ -53,9 +53,10 @@ class InstagramCrawlerPipeline(object):
         curr = self.conn.cursor()
         media = item['media']
         del item['media']
-        curr.execute("REPLACE INTO {}({}) VALUES(%(is_private)s, %(posts)s, %(username)s, %(profile_picture)s,"
-                     "%(followers)s, %(following)s, %(avg_comments)s, %(avg_likes)s, %(user_id)s, %(country)s)"
-                     .format(self.influencer_table, self.INFLUENCER_COLUMNS), item.__dict__['_values'])
+        curr.execute("UPDATE influencers SET is_private=%s, posts=%s, username=%s, profile_picture=%s,"
+                     "followers=%s, following=%s, avg_comments=%s, avg_likes=%s, user_id=%s, country=%s WHERE user_id=%s",
+                     (item['is_private'], item['posts'], item['username'], item['profile_picture'], item['followers'],
+                      item['following'], item['avg_comments'], item['avg_likes'], item['user_id'], item['country'], item['user_id']))
         # insert media into media table
         for post in media:
             curr.execute("REPLACE INTO {}({}) VALUES(%(media_id)s, %(user_id)s, %(src)s, %(likes)s, %(comments)s)"
