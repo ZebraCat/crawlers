@@ -66,11 +66,17 @@ class InstagramCrawlerPipeline(object):
     def _update_collection(self, item):
 
         def prepare_analytics(item):
+            # for manual runs, do not want to update mongo by mistake
+            should_update = True
             influencer = self.analytics_collection.find_one({'user_id': item['user_id']})
             if influencer is not None:
                 date_analytics = influencer['analytics']
-                if len(date_analytics) == self.DAYS:
-                    date_analytics.pop(0)
+                if date_analytics[-1]['date'] == str(datetime.now().date()):
+                    print "Not updating, ran today already"
+                    should_update = False
+                elif len(date_analytics) >= self.DAYS:
+                    for _ in range(date_analytics - self.DAYS):
+                        date_analytics.pop(0)
             else:
                 date_analytics = []
 
@@ -82,9 +88,10 @@ class InstagramCrawlerPipeline(object):
                 "following": item['following'],
                 "posts": item['posts']
             })
-            return date_analytics
+            return date_analytics, should_update
 
+        analytics, should_update = prepare_analytics(item)
         key = {"user_id": item['user_id']}
-        value = {"analytics": prepare_analytics(item), "user_id": item['user_id']}
-
-        self.analytics_collection.update(key, value, upsert=True)
+        value = {"analytics": analytics, "user_id": item['user_id']}
+        if should_update:
+            self.analytics_collection.update(key, value, upsert=True)
