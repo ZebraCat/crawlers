@@ -2,6 +2,7 @@ from datetime import datetime
 import pymysql
 from pymongo import MongoClient
 from scrapy.exceptions import DropItem
+from instagram_crawler.influencer_price_calculator import InfluencerPriceCalculator
 from instagram_crawler.user_cache import UserCache
 from ugly_requests import get_following
 
@@ -53,10 +54,11 @@ class InstagramCrawlerPipeline(object):
         curr = self.conn.cursor()
         media = item['media']
         del item['media']
+        est_price = InfluencerPriceCalculator.calculate_price(item['followers'], item['avg_likes'])
         curr.execute("UPDATE influencers SET is_private=%s, posts=%s, username=%s, profile_picture=%s,"
-                     "followers=%s, following=%s, avg_comments=%s, avg_likes=%s, user_id=%s, country=%s WHERE user_id=%s",
+                     "followers=%s, following=%s, avg_comments=%s, avg_likes=%s, user_id=%s, country=%s, est_price=%s WHERE user_id=%s",
                      (item['is_private'], item['posts'], item['username'], item['profile_picture'], item['followers'],
-                      item['following'], item['avg_comments'], item['avg_likes'], item['user_id'], item['country'], item['user_id']))
+                      item['following'], item['avg_comments'], item['avg_likes'], item['user_id'], item['country'],est_price, item['user_id']))
         # insert media into media table
         for post in media:
             curr.execute("REPLACE INTO {}({}) VALUES(%(media_id)s, %(user_id)s, %(src)s, %(likes)s, %(comments)s)"
