@@ -12,9 +12,14 @@ logger = logging.getLogger(__name__)
 
 class Instagram(Spider):
     BASE_URL = "http://www.instagram.com/"
+    EMAIL_REGEX = re.compile(("([a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`"
+                    "{|}~-]+)*(@|\sat\s)(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(\.|"
+                    "\sdot\s))+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)"))
+
     start_urls=[]
     name='Instagram'
     _identifier = None
+
 
     def __init__(self, method='mysql', country='Israel', *a, **kw):
         super(Instagram, self).__init__(*a, **kw)
@@ -49,6 +54,7 @@ class Instagram(Spider):
         item['avg_likes'] = cls.calc_average('likes', media, len(media['nodes']))
         item['media'] = cls.get_media(media)
         item['country'] = cls.get_country(media)
+        item['contact'] = cls.get_contact(data['biography']) if data['biography'] else None
         return item
 
     @classmethod
@@ -106,6 +112,12 @@ class Instagram(Spider):
     @classmethod
     def is_hebrew_string(cls, string):
         return any(u"\u0590" <= c <= u"\u05EA" for c in string)
+
+    @classmethod
+    def get_contact(cls, bio):
+        result = re.search(cls.EMAIL_REGEX, bio)
+        return None if result is None else result.group()
+
 
     def start_requests(self):
         if self.method == 'mysql':

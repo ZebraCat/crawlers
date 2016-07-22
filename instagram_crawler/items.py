@@ -21,3 +21,4 @@ class InstagramProfileItems(Item):
     user_id = Field()
     country = Field()
     media = Field()
+    contact = Field()
