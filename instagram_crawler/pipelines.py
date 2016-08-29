@@ -8,7 +8,7 @@ from ugly_requests import get_following
 
 class InstagramCrawlerPipeline(object):
 
-    DAYS = 30
+    DAYS = 120
 
     def __init__(self):
         try:
@@ -74,10 +74,10 @@ class InstagramCrawlerPipeline(object):
             influencer = self.analytics_collection.find_one({'user_id': item['user_id']})
             if influencer is not None:
                 date_analytics = influencer['analytics']
-                if date_analytics[-1]['date'] == str(datetime.now().date()):
-                    print "Not updating, ran today already"
-                    should_update = False
-                elif len(date_analytics) >= self.DAYS:
+                # if date_analytics[-1]['date'] == str(datetime.now().date()):
+                #     print "Not updating, ran today already"
+                #     should_update = False
+                if len(date_analytics) >= self.DAYS:
                     for _ in range(date_analytics - self.DAYS):
                         date_analytics.pop(0)
             else:
